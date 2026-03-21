@@ -2,9 +2,10 @@ from flask import Flask, render_template, request, redirect, session, jsonify
 import socket
 import threading
 import json
+import os
 
 app = Flask(__name__)
-app.secret_key = "secret123"   # 🔐 login security
+app.secret_key = "secret123"
 
 latest_data = []
 
@@ -35,7 +36,6 @@ def handle_client(conn):
 
             data_dict = json.loads(data)
 
-            # store latest 10 records
             latest_data.append(data_dict)
             latest_data = latest_data[-10:]
 
@@ -45,7 +45,7 @@ def handle_client(conn):
     conn.close()
 
 
-# 🔐 LOGIN ROUTE
+# 🔐 LOGIN
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -53,6 +53,7 @@ def login():
         password = request.form["password"]
 
         if username == "admin" and password == "1234":
+            session.clear()  # 🔥 clear old session
             session["user"] = username
             return redirect("/")
         else:
@@ -64,11 +65,11 @@ def login():
 # 🔐 LOGOUT
 @app.route("/logout")
 def logout():
-    session.pop("user", None)
+    session.clear()
     return redirect("/login")
 
 
-# 🏠 DASHBOARD (PROTECTED)
+# 🏠 DASHBOARD
 @app.route("/")
 def index():
     if "user" not in session:
@@ -77,15 +78,24 @@ def index():
     return render_template("index.html", data=latest_data)
 
 
-# 📊 API FOR CHARTS
+# 📊 API
 @app.route("/data")
 def data():
     return jsonify({"patients": latest_data})
 
 
-# 🚀 MAIN RUN
-import os
+# 🔥 OPTIONAL: FORCE LOGIN ALWAYS (UNCOMMENT IF NEEDED)
+"""
+@app.before_request
+def require_login():
+    if request.endpoint in ["login", "static"]:
+        return
+    if "user" not in session:
+        return redirect("/login")
+"""
 
+
+# 🚀 MAIN
 if __name__ == "__main__":
     PORT = int(os.environ.get("PORT", 10000))
     threading.Thread(target=socket_server, daemon=True).start()
