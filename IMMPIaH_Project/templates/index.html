@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IMMPIaH Dashboard</title>
+    <meta http-equiv="refresh" content="2">
+    <style>
+body {
+    background: radial-gradient(circle at top, #1a1a2e, #0f3460);
+    font-family: 'Segoe UI', sans-serif;
+    color: white;
+    text-align: center;
+}
+
+/* 🔥 Container */
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 25px;
+    padding: 20px;
+}
+
+/* 🔥 3D CARD */
+.card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 20px;
+    width: 260px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.6),
+        inset 0 0 10px rgba(255,255,255,0.1);
+
+    transform: perspective(1000px) rotateX(0deg);
+    transition: all 0.4s ease;
+}
+
+/* ✨ Hover Animation */
+.card:hover {
+    transform: perspective(1000px) rotateX(8deg) scale(1.05);
+}
+
+/* 🔥 STATUS COLORS */
+.critical {
+    border: 2px solid red;
+    box-shadow: 0 0 20px red;
+}
+
+.warning {
+    border: 2px solid orange;
+    box-shadow: 0 0 20px orange;
+}
+
+.stable {
+    border: 2px solid limegreen;
+    box-shadow: 0 0 20px limegreen;
+}
+
+/* ✨ Title glow */
+h1 {
+    text-shadow: 0 0 15px #00d4ff;
+}
+</style>
+</head>
+<body>
+
+<h1>🏥 IMMPIaH Patient Monitoring Dashboard</h1>
+
+<div class="container">
+    {% for d in data %}
+    <div class="card {{ d.state|lower }}">
+        <h2>Patient {{ d.patient_id }}</h2>
+        <p>❤️ Heart Rate: {{ d.heart_rate }}</p>
+        <p>🌡️ Temp: {{ d.temperature }}</p>
+        <p>🫁 SpO₂: {{ d.spo2 }}</p>
+        <h3>Status: {{ d.state }}</h3>
+    </div>
+    {% endfor %}
+</div>
+<canvas id="chart" width="400" height="200"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+async function loadChart() {
+    const res = await fetch("/data");
+    const data = await res.json();
+
+    const labels = data.patients.map(p => "P" + p.patient_id);
+    const heart = data.patients.map(p => p.heart_rate);
+
+    new Chart(document.getElementById("chart"), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Heart Rate",
+                data: heart,
+                borderWidth: 2
+            }]
+        }
+    });
+}
+
+loadChart();
+</script>
+<script>
+let alerted = false;
+
+function checkAlerts() {
+    const criticalCards = document.querySelectorAll(".critical");
+
+    if (criticalCards.length > 0 && !alerted) {
+        alert("🚨 Critical Patient Detected!");
+        alerted = true;
+    }
+
+    if (criticalCards.length === 0) {
+        alerted = false;
+    }
+}
+
+setInterval(checkAlerts, 2000);
+</script>
+</body>
+</html>
