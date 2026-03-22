@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: patient-monitoring-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: patient-monitoring
+  template:
+    metadata:
+      labels:
+        app: patient-monitoring
+    spec:
+      containers:
+        - name: patient-monitoring
+          image: patient-monitoring:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5000

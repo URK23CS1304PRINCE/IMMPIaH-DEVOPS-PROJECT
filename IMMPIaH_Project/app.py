@@ -99,4 +99,4 @@ def require_login():
 if __name__ == "__main__":
     PORT = int(os.environ.get("PORT", 10000))
     threading.Thread(target=socket_server, daemon=True).start()
-    app.run(host="0.0.0.0", port=PORT)
+    app.run(host='0.0.0.0', port=5000)
