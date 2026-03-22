@@ -11,7 +11,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: IMMPIaH_Project   # 🔥 IMPORTANT FIX
+        working-directory: IMMPIaH_Project   # 🔥 IMPORTANT
 
     steps:
       - name: Checkout Code
