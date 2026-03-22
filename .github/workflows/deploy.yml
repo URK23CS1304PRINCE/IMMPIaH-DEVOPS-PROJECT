@@ -9,13 +9,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: IMMPIaH_Project   # 🔥 IMPORTANT
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Debug Files (IMPORTANT)
+        run: ls -R
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -25,7 +24,7 @@ jobs:
       - name: Install Requirements
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r IMMPIaH_Project/requirements.txt
 
       - name: Build Docker Image
-        run: docker build -t patient-monitoring .
+        run: docker build -t patient-monitoring ./IMMPIaH_Project
